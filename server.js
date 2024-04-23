@@ -26,11 +26,14 @@ app.get("/api/rss", async (req, res) => {
     const $ = cheerio.load(html);
 
     const title = $("title").text();
-    console.log("Title:", title);
 
     const rssLink = $('link[rel="alternate"][type="application/rss+xml"]').attr(
       "href"
     );
+
+    console.log("Title:", title);
+    console.log("rssLink:", rssLink);
+
     res.json({ rssLink, title });
   } catch (error) {
     console.error("Error fetching or parsing RSS:", error);
