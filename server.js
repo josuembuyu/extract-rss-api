@@ -14,6 +14,8 @@ app.get("/api/rss", async (req, res) => {
       return res.status(400).json({ error: "URL parameter is required" });
     }
 
+    console.log(url);
+
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -30,13 +32,8 @@ app.get("/api/rss", async (req, res) => {
     const rssLink = $('link[rel="alternate"][type="application/rss+xml"]').attr(
       "href"
     );
-
-    console.log("Title:", title);
-    console.log("rssLink:", rssLink);
-
     res.json({ rssLink, title });
   } catch (error) {
-    console.error("Error fetching or parsing RSS:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
