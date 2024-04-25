@@ -14,8 +14,6 @@ app.get("/api/rss", async (req, res) => {
       return res.status(400).json({ error: "URL parameter is required" });
     }
 
-    console.log(url);
-
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -25,6 +23,7 @@ app.get("/api/rss", async (req, res) => {
     }
 
     const html = await response.text();
+
     const $ = cheerio.load(html);
 
     const title = $("title").text();
@@ -32,7 +31,12 @@ app.get("/api/rss", async (req, res) => {
     const rssLink = $('link[rel="alternate"][type="application/rss+xml"]').attr(
       "href"
     );
-    res.json({ rssLink, title });
+
+    const atomLink = $(
+      'link[rel="alternate"][type="application/atom+xml"]'
+    ).attr("href");
+
+    res.json({ rssLink, atomLink, title });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
