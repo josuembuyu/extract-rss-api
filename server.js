@@ -10,6 +10,9 @@ app.use(cors()); // Allow all CORS requests
 app.get("/api/rss", async (req, res) => {
   try {
     const url = req.query.url;
+
+    const domain = new URL(url).origin;
+
     if (!url) {
       return res.status(400).json({ error: "URL parameter is required" });
     }
@@ -22,21 +25,21 @@ app.get("/api/rss", async (req, res) => {
         .json({ error: `Failed to fetch resource: ${response.statusText}` });
     }
 
+    console.log(domain);
+
     const html = await response.text();
 
     const $ = cheerio.load(html);
 
-    const title = $("title").text();
-
-    const rssLink = $('link[rel="alternate"][type="application/rss+xml"]').attr(
-      "href"
-    );
-
-    const atomLink = $(
-      'link[rel="alternate"][type="application/atom+xml"]'
+    const feedLink = $(
+      'link[rel="alternate"][type="application/rss+xml"][href], link[rel="alternate"][type="application/atom+xml"][href], a[href*="atom"], a[href*="rss"]'
     ).attr("href");
 
-    res.json({ rssLink, atomLink, title });
+    const absoluteFeedLink = feedLink.startsWith("/")
+      ? domain + feedLink
+      : feedLink;
+
+    res.json({ feedLink: absoluteFeedLink });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
